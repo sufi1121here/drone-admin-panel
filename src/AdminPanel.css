@@ -1,0 +1,401 @@
+/* Modern Admin Panel Styling */
+:root {
+    --primary: #4361ee;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --info: #3498db;
+    --warning: #f39c12;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --gray: #6c757d;
+    --border-radius: 12px;
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Update the admin-wrapper background to have a more attractive gradient */
+  .admin-wrapper {
+    width: 100vw;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, rgb(138, 177, 216) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  /* Add a subtle card effect to the admin container */
+  .admin-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    padding: 30px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .admin-container:hover {
+    transform: translateY(-5px);
+  }
+  
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .admin-header h1 {
+    font-size: 28px;
+    color: var(--dark);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .emoji-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(67, 97, 238, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+  
+  .refresh-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .refresh-button:hover {
+    background-color: rgba(67, 97, 238, 0.05);
+  }
+  
+  .refresh-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Update the table-container to ensure horizontal scrolling works properly */
+  .table-container {
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Table header styling */
+  .table-header {
+    display: flex;
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    font-weight: 600;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+  
+  .header-cell {
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    white-space: nowrap;
+  }
+  
+  /* Table row styling */
+  .table-row {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: white;
+    transition: all 0.2s ease;
+  }
+  
+  .table-row:hover {
+    background-color: rgba(67, 97, 238, 0.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .table-cell {
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #444;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Add styles for username and user number cells */
+  .table-cell.user-name,
+  .table-cell.user-number {
+    font-weight: 500;
+  }
+  
+  .table-cell.user-name {
+    color: var(--primary);
+  }
+  
+  .table-cell.user-number {
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.5px;
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: capitalize;
+  }
+  
+  .status-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-badge.accepted {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-badge.declined {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .accept-btn,
+  .decline-btn,
+  .map-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .accept-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .decline-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .map-btn {
+    background-color: #17a2b8;
+    color: white;
+  }
+  
+  .map-btn.disabled {
+    background-color: #c9d5dd;
+    cursor: not-allowed;
+  }
+  
+  .accept-btn:hover,
+  .decline-btn:hover,
+  .map-btn:not(.disabled):hover {
+    filter: brightness(1.1);
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: var(--gray);
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(67, 97, 238, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 16px;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: var(--gray);
+    text-align: center;
+  }
+  
+  .empty-state svg {
+    color: var(--warning);
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+  
+  .empty-state h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--dark);
+  }
+  
+  .empty-state p {
+    margin: 0;
+    color: var(--gray);
+  }
+  
+  /* Add styles for the user-info class */
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .user-icon {
+    color: var(--gray);
+    opacity: 0.7;
+  }
+  
+  /* Category cell styling */
+  .category-cell {
+    font-weight: 500;
+  }
+  
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary);
+  }
+  
+  .category-badge svg {
+    color: var(--primary);
+    opacity: 0.8;
+  }
+  
+  /* Column width adjustments */
+  .header-cell:nth-child(1),
+  .table-cell:nth-child(1) {
+    flex: 1.5;
+  }
+  
+  .header-cell:nth-child(2),
+  .table-cell:nth-child(2) {
+    flex: 1.5;
+  }
+  
+  .header-cell:nth-child(3),
+  .table-cell:nth-child(3) {
+    flex: 1;
+  }
+  
+  .header-cell:nth-child(4),
+  .table-cell:nth-child(4) {
+    flex: 2;
+  }
+  
+  .header-cell:nth-child(5),
+  .table-cell:nth-child(5) {
+    flex: 1.2;
+  }
+  
+  .header-cell:nth-child(6),
+  .table-cell:nth-child(6) {
+    flex: 1;
+  }
+  
+  /* Update the responsive styles to ensure the table stays in a single row */
+  @media (max-width: 1024px) {
+    .table-container {
+      overflow-x: auto;
+    }
+  
+    .table-header,
+    .table-row {
+      min-width: 900px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .admin-container {
+      padding: 20px 15px;
+    }
+  
+    .admin-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  
+    .refresh-button {
+      align-self: flex-start;
+    }
+  
+    /* Keep the action buttons in a row even on mobile */
+    .action-buttons {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  
+    .action-buttons button {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  
+    .map-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  }
+  
