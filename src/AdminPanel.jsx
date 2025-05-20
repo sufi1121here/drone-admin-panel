@@ -23,7 +23,7 @@ const AdminPanel = () => {
       if (isRefresh) setRefreshing(true)
       if (!isRefresh) setLoading(true)
 
-      const res = await axios.get("http://localhost:5000/api/drone-requests")
+      const res = await axios.get("https://drone-bend-production.up.railway.app/api/drone-requests")
       setRequests(res.data)
     } catch (err) {
       console.error("Error fetching requests:", err)
@@ -37,7 +37,7 @@ const AdminPanel = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/drone-requests/${id}`, { status })
+      await axios.put(`https://drone-bend-production.up.railway.app/api/drone-requests/${id}`, { status })
       // Update the local state for immediate UI feedback
       setRequests(requests.map((req) => (req._id === id ? { ...req, status } : req)))
 
@@ -177,7 +177,6 @@ const AdminPanel = () => {
                 </div>
                 <div className="table-cell category-cell">
                   <div className="category-badge">
-                    <FolderIcon size={14} />
                     <span>{req.category || "General"}</span>
                   </div>
                 </div>
