@@ -76,7 +76,7 @@ const AdminPanel = () => {
 
   const showMap = (req) => {
     // Using the updated map function with actual coordinates
-    const url = `https://www.google.com/maps/dir/?api=1&origin=24.812394606645015,67.1171401902961&destination=${req.latitude},${req.longitude}`
+    const url = `https://www.google.com/maps/dir/?api=1&origin=24.808627777561753,67.12094931331968&destination=${req.latitude},${req.longitude}`
     window.open(url, "_blank")
   }
 
