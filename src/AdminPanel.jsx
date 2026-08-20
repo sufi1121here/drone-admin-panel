@@ -91,13 +91,17 @@ const AdminPanel = () => {
           <motion.button
             className="refresh-button"
             onClick={() => fetchData(true)}
-            animate={{ rotate: refreshing ? 360 : 0 }}
-            transition={{ duration: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             disabled={refreshing}
           >
-            <RefreshCw size={16} />
+            <motion.div
+              animate={{ rotate: refreshing ? 360 : 0 }}
+              transition={{ repeat: refreshing ? Infinity : 0, duration: 1, ease: "linear" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <RefreshCw size={16} />
+            </motion.div>
             Refresh
           </motion.button>
         </div>
