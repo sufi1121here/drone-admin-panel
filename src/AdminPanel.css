@@ -442,14 +442,60 @@
 }
 
 @media (max-width: 768px) {
+  .admin-wrapper {
+    padding: 20px 10px;
+  }
+
   .admin-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
   }
 
+  .admin-header h1 {
+    font-size: 24px;
+  }
+
   .refresh-button {
     align-self: stretch;
     justify-content: center;
+    padding: 14px 20px;
+  }
+
+  .table-container {
+    background: transparent;
+    border: none;
+    padding-bottom: 20px; 
+  }
+
+  .table-header {
+    display: none; /* Hide header row on mobile */
+  }
+  
+  .table-row:hover {
+    background: rgba(30, 41, 59, 0.6);
+  }
+
+  .table-cell {
+    padding: 0;
+    min-width: unset;
+    width: 100%;
+    justify-content: space-between; /* To push content and pseudo-labels if any */
+  }
+
+  /* Reset layout proportions */
+  .header-cell:nth-child(1), .table-cell:nth-child(1),
+  .header-cell:nth-child(2), .table-cell:nth-child(2),
+  .header-cell:nth-child(3), .table-cell:nth-child(3),
+  .header-cell:nth-child(4), .table-cell:nth-child(4),
+  .header-cell:nth-child(5), .table-cell:nth-child(5),
+  .header-cell:nth-child(6), .table-cell:nth-child(6) {
+    min-width: auto;
+    flex: none;
+  }
+  .table-cell:nth-child(4) { /* Actions cell */
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 }
