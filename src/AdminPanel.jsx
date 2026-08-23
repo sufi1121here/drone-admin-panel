@@ -5,6 +5,10 @@ import "./AdminPanel.css"
 import { CheckCircle, XCircle, MapPin, RefreshCw, User, Phone, Clock, AlertTriangle, FolderIcon } from "lucide-react"
 
 const AdminPanel = () => {
+
+  // const domain = "http://localhost:5000"     // dev
+  const domain = "https://drone-bend-production.up.railway.app" // live
+
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -23,7 +27,7 @@ const AdminPanel = () => {
       if (isRefresh) setRefreshing(true)
       if (!isRefresh) setLoading(true)
 
-      const res = await axios.get("https://drone-bend-production.up.railway.app/api/drone-requests")
+      const res = await axios.get(`${domain}/api/drone-requests`)
       setRequests(res.data)
     } catch (err) {
       console.error("Error fetching requests:", err)
@@ -37,7 +41,7 @@ const AdminPanel = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(`https://drone-bend-production.up.railway.app/api/drone-requests/${id}`, { status })
+      await axios.put(`${domain}/api/drone-requests/${id}`, { status })
       // Update the local state for immediate UI feedback
       setRequests(requests.map((req) => (req._id === id ? { ...req, status } : req)))
 
@@ -144,20 +148,20 @@ const AdminPanel = () => {
                 transition={{ duration: 0.3 }}
                 layout
               >
-                <div className="table-cell user-name">
+                <div className="table-cell user-name" data-label="User Name">
                   <div className="user-info">
                     <User size={16} className="user-icon" />
                     <span>{req.userName}</span>
                   </div>
                 </div>
-                <div className="table-cell user-number">
+                <div className="table-cell user-number" data-label="User Number">
                   <div className="user-info">
                     <Phone size={16} className="user-icon" />
                     <span>{req.mobileNumber}</span>
                   </div>
                 </div>
-                <div className="table-cell">{getStatusBadge(req.status)}</div>
-                <div className="table-cell">
+                <div className="table-cell" data-label="Status">{getStatusBadge(req.status)}</div>
+                <div className="table-cell" data-label="Actions">
                   {req.status === "pending" && (
                     <div className="action-buttons">
                       <motion.button
@@ -179,12 +183,12 @@ const AdminPanel = () => {
                     </div>
                   )}
                 </div>
-                <div className="table-cell category-cell">
+                <div className="table-cell category-cell" data-label="Category">
                   <div className="category-badge">
                     <span>{req.category || "General"}</span>
                   </div>
                 </div>
-                <div className="table-cell">
+                <div className="table-cell" data-label="Map">
                   <motion.button
                     className={`map-btn ${!req.longitude ? "disabled" : ""}`}
                     onClick={() => req.longitude && showMap(req)}

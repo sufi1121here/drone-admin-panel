@@ -472,15 +472,33 @@
     display: none; /* Hide header row on mobile */
   }
   
+  .table-row {
+    flex-direction: column;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.4);
+  }
+
   .table-row:hover {
     background: rgba(30, 41, 59, 0.6);
   }
 
   .table-cell {
-    padding: 0;
+    padding: 8px 0;
     min-width: unset;
     width: 100%;
-    justify-content: space-between; /* To push content and pseudo-labels if any */
+    justify-content: flex-end;
+  }
+
+  .table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: auto;
+    font-size: 13px;
+    text-transform: uppercase;
   }
 
   /* Reset layout proportions */
@@ -493,6 +511,7 @@
     min-width: auto;
     flex: none;
   }
+  
   .table-cell:nth-child(4) { /* Actions cell */
     margin-top: 10px;
     padding-top: 15px;
