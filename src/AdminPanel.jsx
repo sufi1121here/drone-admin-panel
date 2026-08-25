@@ -1,17 +1,37 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import toast, { Toaster } from "react-hot-toast"
+import { formatDistanceToNow } from "date-fns"
 import "./AdminPanel.css"
-import { CheckCircle, XCircle, MapPin, RefreshCw, User, Phone, Clock, AlertTriangle, FolderIcon } from "lucide-react"
+import {
+  CheckCircle,
+  XCircle,
+  MapPin,
+  RefreshCw,
+  User,
+  Phone,
+  Clock,
+  AlertTriangle,
+  FolderIcon,
+  Download,
+  Search,
+  Filter,
+  Calendar,
+  Activity,
+  List
+} from "lucide-react"
 
 const AdminPanel = () => {
-
-  // const domain = "http://localhost:5000"     // dev
-  const domain = "https://drone-bend-production.up.railway.app" // live
+  const domain = "http://localhost:5000" // dev
+  // const domain = "https://drone-bend-production.up.railway.app" // live
 
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [categoryFilter, setCategoryFilter] = useState("all")
 
   useEffect(() => {
     fetchData()
@@ -31,6 +51,7 @@ const AdminPanel = () => {
       setRequests(res.data)
     } catch (err) {
       console.error("Error fetching requests:", err)
+      if (!isRefresh) toast.error("Failed to load requests.")
     } finally {
       setLoading(false)
       if (isRefresh) {
@@ -40,16 +61,24 @@ const AdminPanel = () => {
   }
 
   const updateStatus = async (id, status) => {
+    const confirmMessage = status === 'accepted' 
+      ? 'Are you sure you want to ACCEPT this request?'
+      : 'Are you sure you want to DECLINE this request?';
+      
+    if (!window.confirm(confirmMessage)) return;
+
+    const loadingToast = toast.loading(`Updating status to ${status}...`);
+
     try {
       await axios.put(`${domain}/api/drone-requests/${id}`, { status })
       // Update the local state for immediate UI feedback
       setRequests(requests.map((req) => (req._id === id ? { ...req, status } : req)))
-
+      toast.success(`Request ${status} successfully!`, { id: loadingToast })
       // Fetch fresh data
       setTimeout(() => fetchData(), 300)
-
     } catch (err) {
       console.error("Error updating status:", err)
+      toast.error("Failed to update status", { id: loadingToast })
     }
   }
 
@@ -79,35 +108,166 @@ const AdminPanel = () => {
   }
 
   const showMap = (req) => {
-    // Using the updated map function with actual coordinates
     const url = `https://www.google.com/maps/dir/?api=1&origin=24.808627777561753,67.12094931331968&destination=${req.latitude},${req.longitude}`
     window.open(url, "_blank")
   }
 
+  // Filter requests
+  const filteredRequests = requests.filter((req) => {
+    const matchesSearch =
+      req.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.mobileNumber?.includes(searchQuery)
+    const matchesStatus = statusFilter === "all" || req.status === statusFilter
+    const reqCat = req.category || "General"
+    const matchesCategory = categoryFilter === "all" || reqCat === categoryFilter
+
+    return matchesSearch && matchesStatus && matchesCategory
+  })
+
+  // Analytics Metrics
+  const totalRequests = requests.length
+  const pendingRequests = requests.filter((r) => r.status === "pending").length
+  const acceptedRequests = requests.filter((r) => r.status === "accepted").length
+  const declinedRequests = requests.filter((r) => r.status === "declined").length
+
+  // Generate Unique Categories for Filter
+  const categories = ["all", ...new Set(requests.map((r) => r.category || "General"))]
+
+  const exportToCSV = () => {
+    const headers = ["User Name", "Mobile Number", "Category", "Status", "Requested At", "Location (Lat,Lng)"]
+    const rows = filteredRequests.map((req) => {
+      const dateStr = req.createdAt ? new Date(req.createdAt).toLocaleString() : "N/A"
+      return [
+        `"${req.userName || ""}"`,
+        `"${req.mobileNumber || ""}"`,
+        `"${req.category || "General"}"`,
+        `"${req.status || ""}"`,
+        `"${dateStr}"`,
+        `"${req.latitude},${req.longitude}"`,
+      ]
+    })
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n")
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", `drone_requests_${new Date().getTime()}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success("Exported successfully!")
+  }
+
   return (
     <div className="admin-wrapper">
+      <Toaster position="top-right" toastOptions={{
+        style: {
+          background: 'rgba(30, 41, 59, 0.9)',
+          color: '#fff',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)'
+        }
+      }} />
+      
       <div className="admin-container">
+        {/* Header section */}
         <div className="admin-header">
           <h1>
             <span className="emoji-icon">📋</span>
-            Admin Panel – Drone Requests
+            Drone Command Center
           </h1>
-          <motion.button
-            className="refresh-button"
-            onClick={() => fetchData(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            disabled={refreshing}
-          >
-            <motion.div
-              animate={{ rotate: refreshing ? 360 : 0 }}
-              transition={{ repeat: refreshing ? Infinity : 0, duration: 1, ease: "linear" }}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+          <div className="header-actions">
+            <motion.button
+              className="export-button"
+              onClick={exportToCSV}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <RefreshCw size={16} />
-            </motion.div>
-            Refresh
-          </motion.button>
+              <Download size={16} /> Export CSV
+            </motion.button>
+            <motion.button
+              className="refresh-button"
+              onClick={() => fetchData(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              disabled={refreshing}
+            >
+              <motion.div
+                animate={{ rotate: refreshing ? 360 : 0 }}
+                transition={{ repeat: refreshing ? Infinity : 0, duration: 1, ease: "linear" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <RefreshCw size={16} />
+              </motion.div>
+              Refresh
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Analytics Dashboard */}
+        <div className="analytics-dashboard">
+          <div className="metric-card total">
+            <div className="metric-icon"><List size={24} /></div>
+            <div className="metric-info">
+              <h3>Total Requests</h3>
+              <p>{totalRequests}</p>
+            </div>
+          </div>
+          <div className="metric-card pending">
+            <div className="metric-icon"><Clock size={24} /></div>
+            <div className="metric-info">
+              <h3>Pending</h3>
+              <p>{pendingRequests}</p>
+            </div>
+          </div>
+          <div className="metric-card accepted">
+            <div className="metric-icon"><CheckCircle size={24} /></div>
+            <div className="metric-info">
+              <h3>Accepted</h3>
+              <p>{acceptedRequests}</p>
+            </div>
+          </div>
+          <div className="metric-card declined">
+            <div className="metric-icon"><XCircle size={24} /></div>
+            <div className="metric-info">
+              <h3>Declined</h3>
+              <p>{declinedRequests}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Search */}
+        <div className="controls-section">
+          <div className="search-bar">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name or number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="filters">
+            <div className="filter-group">
+              <Activity size={16} />
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <Filter size={16} />
+              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat === "all" ? "All Categories" : cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {loading ? (
@@ -115,92 +275,104 @@ const AdminPanel = () => {
             <div className="loading-spinner"></div>
             <p>Loading requests...</p>
           </div>
-        ) : requests.length === 0 ? (
+        ) : filteredRequests.length === 0 ? (
           <div className="empty-state">
             <AlertTriangle size={48} />
             <h3>No Requests Found</h3>
-            <p>There are currently no drone requests in the system.</p>
+            <p>Try adjusting your search or filters.</p>
           </div>
         ) : (
           <div className="table-container">
             <div className="table-header">
               <div className="header-cell">
-                <User size={16} /> User Name
+                <User size={16} /> User Details
               </div>
-              <div className="header-cell">
-                <Phone size={16} /> User Number
-              </div>
-              <div className="header-cell">Status</div>
-              <div className="header-cell">Actions</div>
               <div className="header-cell">
                 <FolderIcon size={16} /> Category
               </div>
+              <div className="header-cell">
+                <Calendar size={16} /> Time
+              </div>
+              <div className="header-cell">Status</div>
+              <div className="header-cell">Actions</div>
               <div className="header-cell">Map</div>
             </div>
 
-            {requests.map((req) => (
-              <motion.div
-                key={req._id}
-                className="table-row"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                layout
-              >
-                <div className="table-cell user-name" data-label="User Name">
-                  <div className="user-info">
-                    <User size={16} className="user-icon" />
-                    <span>{req.userName}</span>
-                  </div>
-                </div>
-                <div className="table-cell user-number" data-label="User Number">
-                  <div className="user-info">
-                    <Phone size={16} className="user-icon" />
-                    <span>{req.mobileNumber}</span>
-                  </div>
-                </div>
-                <div className="table-cell" data-label="Status">{getStatusBadge(req.status)}</div>
-                <div className="table-cell" data-label="Actions">
-                  {req.status === "pending" && (
-                    <div className="action-buttons">
-                      <motion.button
-                        className="accept-btn"
-                        onClick={() => updateStatus(req._id, "accepted")}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <CheckCircle size={16} /> Accept
-                      </motion.button>
-                      <motion.button
-                        className="decline-btn"
-                        onClick={() => updateStatus(req._id, "declined")}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <XCircle size={16} /> Decline
-                      </motion.button>
+            <AnimatePresence>
+              {filteredRequests.map((req) => (
+                <motion.div
+                  key={req._id}
+                  className="table-row"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  layout
+                >
+                  <div className="table-cell user-name" data-label="User Details">
+                    <div className="user-info">
+                      <User size={16} className="user-icon" />
+                      <div className="user-text-info">
+                        <span className="name">{req.userName}</span>
+                        <span className="phone">{req.mobileNumber}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="table-cell category-cell" data-label="Category">
-                  <div className="category-badge">
-                    <span>{req.category || "General"}</span>
                   </div>
-                </div>
-                <div className="table-cell" data-label="Map">
-                  <motion.button
-                    className={`map-btn ${!req.longitude ? "disabled" : ""}`}
-                    onClick={() => req.longitude && showMap(req)}
-                    whileHover={{ scale: req.longitude ? 1.05 : 1 }}
-                    whileTap={{ scale: req.longitude ? 0.95 : 1 }}
-                    disabled={!req.longitude}
-                  >
-                    <MapPin size={16} /> Show Map
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
+                  
+                  <div className="table-cell category-cell" data-label="Category">
+                    <div className="category-badge">
+                      <span>{req.category || "General"}</span>
+                    </div>
+                  </div>
+
+                  <div className="table-cell time-cell" data-label="Time">
+                    {req.createdAt ? (
+                      <span className="time-text">
+                        {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
+                      </span>
+                    ) : (
+                      <span className="time-text">N/A</span>
+                    )}
+                  </div>
+
+                  <div className="table-cell" data-label="Status">{getStatusBadge(req.status)}</div>
+                  
+                  <div className="table-cell" data-label="Actions">
+                    {req.status === "pending" && (
+                      <div className="action-buttons">
+                        <motion.button
+                          className="accept-btn"
+                          onClick={() => updateStatus(req._id, "accepted")}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <CheckCircle size={16} /> Accept
+                        </motion.button>
+                        <motion.button
+                          className="decline-btn"
+                          onClick={() => updateStatus(req._id, "declined")}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <XCircle size={16} /> Decline
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="table-cell" data-label="Map">
+                    <motion.button
+                      className={`map-btn ${!req.longitude ? "disabled" : ""}`}
+                      onClick={() => req.longitude && showMap(req)}
+                      whileHover={{ scale: req.longitude ? 1.05 : 1 }}
+                      whileTap={{ scale: req.longitude ? 0.95 : 1 }}
+                      disabled={!req.longitude}
+                    >
+                      <MapPin size={16} /> Map
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
