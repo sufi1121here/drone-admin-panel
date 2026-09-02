@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { LogOut, Lock } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import toast, { Toaster } from "react-hot-toast"
 import { formatDistanceToNow } from "date-fns"
@@ -32,26 +33,63 @@ const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
+  
+  // Auth state
+  const [token, setToken] = useState(localStorage.getItem("adminToken"))
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
+  // Clear interval on unmount
   useEffect(() => {
+    if (!token) return;
+    
     fetchData()
     const interval = setInterval(() => {
       fetchData(true)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [token])
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setIsLoggingIn(true)
+    try {
+      const res = await axios.post(`${domain}/api/admin/login`, { username, password })
+      const newToken = res.data.token
+      localStorage.setItem("adminToken", newToken)
+      setToken(newToken)
+      toast.success("Welcome back, Admin!")
+    } catch (err) {
+      toast.error("Invalid username or password")
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken")
+    setToken(null)
+    toast.success("Logged out successfully")
+  }
 
   const fetchData = async (isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true)
       if (!isRefresh) setLoading(true)
 
-      const res = await axios.get(`${domain}/api/drone-requests`)
+      const config = { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axios.get(`${domain}/api/drone-requests`, config)
       setRequests(res.data)
     } catch (err) {
-      console.error("Error fetching requests:", err)
-      if (!isRefresh) toast.error("Failed to load requests.")
+      if (err.response?.status === 401) {
+        handleLogout()
+        toast.error("Session expired. Please log in again.")
+      } else {
+        console.error("Error fetching requests:", err)
+        if (!isRefresh) toast.error("Failed to load requests.")
+      }
     } finally {
       setLoading(false)
       if (isRefresh) {
@@ -70,15 +108,20 @@ const AdminPanel = () => {
     const loadingToast = toast.loading(`Updating status to ${status}...`);
 
     try {
-      await axios.put(`${domain}/api/drone-requests/${id}`, { status })
+      const config = { headers: { Authorization: `Bearer ${token}` } }
+      await axios.put(`${domain}/api/drone-requests/${id}`, { status }, config)
       // Update the local state for immediate UI feedback
       setRequests(requests.map((req) => (req._id === id ? { ...req, status } : req)))
       toast.success(`Request ${status} successfully!`, { id: loadingToast })
       // Fetch fresh data
       setTimeout(() => fetchData(), 300)
     } catch (err) {
-      console.error("Error updating status:", err)
-      toast.error("Failed to update status", { id: loadingToast })
+      if (err.response?.status === 401) {
+        handleLogout()
+      } else {
+        console.error("Error updating status:", err)
+        toast.error("Failed to update status", { id: loadingToast })
+      }
     }
   }
 
@@ -158,6 +201,60 @@ const AdminPanel = () => {
     toast.success("Exported successfully!")
   }
 
+  if (!token) {
+    return (
+      <div className="admin-wrapper login-wrapper">
+        <Toaster position="top-right" toastOptions={{
+          style: { background: 'rgba(30, 41, 59, 0.9)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }
+        }} />
+        <motion.div 
+          className="login-box"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="login-header">
+            <div className="login-icon-container">
+              <Lock size={32} color="#8b5cf6" />
+            </div>
+            <h2>Admin Login</h2>
+            <p>Access the Drone Command Center</p>
+          </div>
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group">
+              <User size={18} className="input-icon" />
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <Lock size={18} className="input-icon" />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <motion.button 
+              type="submit" 
+              className="login-submit-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? "Authenticating..." : "Login to Command Center"}
+            </motion.button>
+          </form>
+        </motion.div>
+      </div>
+    )
+  }
+
   return (
     <div className="admin-wrapper">
       <Toaster position="top-right" toastOptions={{
@@ -200,6 +297,14 @@ const AdminPanel = () => {
                 <RefreshCw size={16} />
               </motion.div>
               Refresh
+            </motion.button>
+            <motion.button
+              className="logout-button"
+              onClick={handleLogout}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <LogOut size={16} /> Logout
             </motion.button>
           </div>
         </div>
