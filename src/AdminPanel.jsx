@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { LogOut, Lock } from "lucide-react"
+import { LogOut, Lock, Map } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import toast, { Toaster } from "react-hot-toast"
 import { formatDistanceToNow } from "date-fns"
 import "./AdminPanel.css"
+import LiveMap from "./components/LiveMap"
 import {
   CheckCircle,
   XCircle,
@@ -39,6 +40,9 @@ const AdminPanel = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  
+  // Tab State
+  const [activeTab, setActiveTab] = useState("dashboard")
 
   // Clear interval on unmount
   useEffect(() => {
@@ -273,6 +277,22 @@ const AdminPanel = () => {
             <span className="emoji-icon">📋</span>
             Drone Command Center
           </h1>
+
+          <div className="tab-navigation">
+            <button 
+              className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              <List size={18} /> Dashboard
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
+              onClick={() => setActiveTab('map')}
+            >
+              <Map size={18} /> Live Map
+            </button>
+          </div>
+
           <div className="header-actions">
             <motion.button
               className="export-button"
@@ -309,9 +329,11 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        {/* Analytics Dashboard */}
-        <div className="analytics-dashboard">
-          <div className="metric-card total">
+        {activeTab === 'dashboard' ? (
+          <>
+            {/* Analytics Dashboard */}
+            <div className="analytics-dashboard">
+              <div className="metric-card total">
             <div className="metric-icon"><List size={24} /></div>
             <div className="metric-info">
               <h3>Total Requests</h3>
@@ -479,6 +501,10 @@ const AdminPanel = () => {
               ))}
             </AnimatePresence>
           </div>
+        )}
+          </>
+        ) : (
+          <LiveMap token={token} />
         )}
       </div>
     </div>

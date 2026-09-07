@@ -1,0 +1,26 @@
+.map-container {
+  height: calc(100vh - 140px);
+  width: 100%;
+  padding: 0 40px 40px 40px;
+  box-sizing: border-box;
+}
+
+.leaflet-container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 40px -8px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  background-color: #0f172a !important;
+}
+
+/* Make Leaflet Popups dark mode compatible */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.leaflet-popup-content strong {
+  color: #8b5cf6;
+  font-size: 1.1em;
+}
