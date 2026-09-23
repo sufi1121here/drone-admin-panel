@@ -6,6 +6,7 @@ import toast, { Toaster } from "react-hot-toast"
 import { formatDistanceToNow } from "date-fns"
 import "./AdminPanel.css"
 import LiveMap from "./components/LiveMap"
+import AnalyticsDashboard from "./components/AnalyticsDashboard"
 import {
   CheckCircle,
   XCircle,
@@ -21,7 +22,9 @@ import {
   Filter,
   Calendar,
   Activity,
-  List
+  List,
+  Package,
+  Shield
 } from "lucide-react"
 
 const AdminPanel = () => {
@@ -171,12 +174,6 @@ const AdminPanel = () => {
     return matchesSearch && matchesStatus && matchesCategory
   })
 
-  // Analytics Metrics
-  const totalRequests = requests.length
-  const pendingRequests = requests.filter((r) => r.status === "pending").length
-  const acceptedRequests = requests.filter((r) => r.status === "accepted").length
-  const declinedRequests = requests.filter((r) => r.status === "declined").length
-
   // Generate Unique Categories for Filter
   const categories = ["all", ...new Set(requests.map((r) => r.category || "General"))]
 
@@ -278,21 +275,6 @@ const AdminPanel = () => {
             Drone Command Center
           </h1>
 
-          <div className="tab-navigation">
-            <button 
-              className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dashboard')}
-            >
-              <List size={18} /> Dashboard
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
-              onClick={() => setActiveTab('map')}
-            >
-              <Map size={18} /> Live Map
-            </button>
-          </div>
-
           <div className="header-actions">
             <motion.button
               className="export-button"
@@ -329,41 +311,28 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        {activeTab === 'dashboard' ? (
-          <>
-            {/* Analytics Dashboard */}
-            <div className="analytics-dashboard">
-              <div className="metric-card total">
-            <div className="metric-icon"><List size={24} /></div>
-            <div className="metric-info">
-              <h3>Total Requests</h3>
-              <p>{totalRequests}</p>
-            </div>
-          </div>
-          <div className="metric-card pending">
-            <div className="metric-icon"><Clock size={24} /></div>
-            <div className="metric-info">
-              <h3>Pending</h3>
-              <p>{pendingRequests}</p>
-            </div>
-          </div>
-          <div className="metric-card accepted">
-            <div className="metric-icon"><CheckCircle size={24} /></div>
-            <div className="metric-info">
-              <h3>Accepted</h3>
-              <p>{acceptedRequests}</p>
-            </div>
-          </div>
-          <div className="metric-card declined">
-            <div className="metric-icon"><XCircle size={24} /></div>
-            <div className="metric-info">
-              <h3>Declined</h3>
-              <p>{declinedRequests}</p>
-            </div>
-          </div>
+        {/* Tab Navigation Row */}
+        <div className="tabs-container">
+          <button className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+            <List size={18} /> Dashboard
+          </button>
+          <button className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`} onClick={() => setActiveTab('map')}>
+            <Map size={18} /> Live Map
+          </button>
+          <button className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+            <Activity size={18} /> Analytics
+          </button>
+          <button className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
+            <Package size={18} /> Drone Inventory
+          </button>
+          <button className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => setActiveTab('admin')}>
+            <Shield size={18} /> Admin Management
+          </button>
         </div>
 
-        {/* Filters and Search */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* Filters and Search */}
         <div className="controls-section">
           <div className="search-bar">
             <Search size={18} className="search-icon" />
@@ -503,8 +472,26 @@ const AdminPanel = () => {
           </div>
         )}
           </>
-        ) : (
-          <LiveMap token={token} />
+        )}
+
+        {activeTab === 'map' && <LiveMap token={token} />}
+        
+        {activeTab === 'analytics' && <AnalyticsDashboard requests={requests} />}
+        
+        {activeTab === 'inventory' && (
+          <div className="empty-state">
+            <Package size={48} />
+            <h3>Drone Inventory Status</h3>
+            <p>Coming soon: Track real-time battery levels, maintenance schedules, and drone availability.</p>
+          </div>
+        )}
+
+        {activeTab === 'admin' && (
+          <div className="empty-state">
+            <Shield size={48} />
+            <h3>Admin Management</h3>
+            <p>Coming soon: Manage user roles, permissions, and system settings.</p>
+          </div>
         )}
       </div>
     </div>
