@@ -112,6 +112,18 @@
   gap: 4px;
 }
 
+.tabs-container {
+  display: flex;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px;
+  border-radius: 12px;
+  gap: 8px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  width: fit-content;
+}
+
 .tab-btn {
   display: flex;
   align-items: center;
