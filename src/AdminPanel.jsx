@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns"
 import "./AdminPanel.css"
 import LiveMap from "./components/LiveMap"
 import AnalyticsDashboard from "./components/AnalyticsDashboard"
+import AdminManagement from "./components/AdminManagement"
 import {
   CheckCircle,
   XCircle,
@@ -486,13 +487,7 @@ const AdminPanel = () => {
           </div>
         )}
 
-        {activeTab === 'admin' && (
-          <div className="empty-state">
-            <Shield size={48} />
-            <h3>Admin Management</h3>
-            <p>Coming soon: Manage user roles, permissions, and system settings.</p>
-          </div>
-        )}
+        {activeTab === 'admin' && <AdminManagement token={token} />}
       </div>
     </div>
   )
