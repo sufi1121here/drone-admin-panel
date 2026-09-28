@@ -8,6 +8,7 @@ import "./AdminPanel.css"
 import LiveMap from "./components/LiveMap"
 import AnalyticsDashboard from "./components/AnalyticsDashboard"
 import AdminManagement from "./components/AdminManagement"
+import DroneInventory from "./components/DroneInventory"
 import {
   CheckCircle,
   XCircle,
@@ -479,13 +480,7 @@ const AdminPanel = () => {
         
         {activeTab === 'analytics' && <AnalyticsDashboard requests={requests} />}
         
-        {activeTab === 'inventory' && (
-          <div className="empty-state">
-            <Package size={48} />
-            <h3>Drone Inventory Status</h3>
-            <p>Coming soon: Track real-time battery levels, maintenance schedules, and drone availability.</p>
-          </div>
-        )}
+        {activeTab === 'inventory' && <DroneInventory token={token} />}
 
         {activeTab === 'admin' && <AdminManagement token={token} />}
       </div>
