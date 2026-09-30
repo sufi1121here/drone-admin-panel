@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Trash2, UserPlus, Shield, Key } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import './AdminManagement.css';
 
@@ -73,7 +74,12 @@ const AdminManagement = ({ token }) => {
       <div className="admin-management-grid">
         
         {/* Create Admin Form */}
-        <div className="admin-card create-admin-card">
+        <motion.div 
+          className="admin-card create-admin-card"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="card-header">
             <div className="icon-wrapper primary"><UserPlus size={20} /></div>
             <h3>Create New Admin</h3>
@@ -104,10 +110,15 @@ const AdminManagement = ({ token }) => {
               {isCreating ? 'Creating...' : 'Create Admin Account'}
             </button>
           </form>
-        </div>
+        </motion.div>
 
         {/* List of Admins */}
-        <div className="admin-card admin-list-card">
+        <motion.div 
+          className="admin-card admin-list-card"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="card-header">
             <div className="icon-wrapper secondary"><Shield size={20} /></div>
             <h3>Existing Admin Accounts</h3>
@@ -118,27 +129,36 @@ const AdminManagement = ({ token }) => {
             <div className="loading-state">Loading...</div>
           ) : (
             <div className="admin-list">
-              {admins.map((admin) => (
-                <div key={admin._id} className="admin-row">
-                  <div className="admin-info">
-                    <div className="admin-avatar">
-                      {admin.username.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="admin-name">{admin.username}</span>
-                  </div>
-                  <button 
-                    className="delete-btn" 
-                    onClick={() => handleDeleteAdmin(admin._id, admin.username)}
-                    title="Delete Admin"
+              <AnimatePresence>
+                {admins.map((admin, index) => (
+                  <motion.div 
+                    key={admin._id} 
+                    className="admin-row"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
                   >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
+                    <div className="admin-info">
+                      <div className="admin-avatar">
+                        {admin.username.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="admin-name">{admin.username}</span>
+                    </div>
+                    <button 
+                      className="delete-btn" 
+                      onClick={() => handleDeleteAdmin(admin._id, admin.username)}
+                      title="Delete Admin"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
               {admins.length === 0 && <div className="empty-state">No other admins found.</div>}
             </div>
           )}
-        </div>
+        </motion.div>
 
       </div>
     </div>

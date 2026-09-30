@@ -332,8 +332,17 @@ const AdminPanel = () => {
           </button>
         </div>
 
-        {activeTab === 'dashboard' && (
-          <>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.2 }}
+            style={{ width: '100%' }}
+          >
+            {activeTab === 'dashboard' && (
+              <>
             {/* Filters and Search */}
         <div className="controls-section">
           <div className="search-bar">
@@ -483,6 +492,8 @@ const AdminPanel = () => {
         {activeTab === 'inventory' && <DroneInventory token={token} />}
 
         {activeTab === 'admin' && <AdminManagement token={token} />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )

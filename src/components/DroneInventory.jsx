@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Package, Battery, BatteryCharging, Navigation, CheckCircle, Activity, Crosshair } from 'lucide-react';
+import { motion } from 'framer-motion';
 import './DroneInventory.css';
 
 const DroneInventory = ({ token }) => {
@@ -52,8 +53,14 @@ const DroneInventory = ({ token }) => {
         <div className="loading-state">Syncing with fleet...</div>
       ) : (
         <div className="drone-grid">
-          {drones.map(drone => (
-            <div key={drone.id} className="drone-card">
+          {drones.map((drone, index) => (
+            <motion.div 
+              key={drone.id} 
+              className="drone-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
               <div className="drone-card-header">
                 <div className="drone-id">
                   <Package size={20} className="drone-icon" />
@@ -106,7 +113,7 @@ const DroneInventory = ({ token }) => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
